@@ -19,7 +19,7 @@ const UserType = new GraphQLObjectType({
 })
 
 // RootQuery 目的是允許 GraphQL 跳到特定的節點上
-// 目前這個假設一進到網頁後想找特定用戶
+// 目前這個假設一進到網頁後想找特定用戶，前端會以 user 來搜尋
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
