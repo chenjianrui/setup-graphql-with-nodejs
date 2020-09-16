@@ -28,6 +28,7 @@ const RootQuery = new GraphQLObjectType({
       // 帶入 arguments，這裡是帶入 id，將會 response 上面 type 的 value
       args: {id: { type: GraphQLString }},
       // 這個 resolve 會進入到 DB 找出你想要的東西
+      // args 將帶入想查詢的關鍵字
       resolve(parentValue, args) {
         return _.find(users, { id: args.id })
       }
