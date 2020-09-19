@@ -1,12 +1,7 @@
 const graphql = require('graphql')
 const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema } = graphql
 const _ = require('lodash')
-
-// hard code
-const users = [
-  { id: '23', firstName: 'Nick', age: 18},
-  { id: '48', firstName: 'Tony', age: 22 }
-]
+const axios = require('axios')
 
 const UserType = new GraphQLObjectType({
   name: 'User',
@@ -29,8 +24,9 @@ const RootQuery = new GraphQLObjectType({
       args: {id: { type: GraphQLString }},
       // 這個 resolve 會進入到 DB 找出你想要的東西
       // args 將帶入想查詢的關鍵字
-      resolve(parentValue, args) {
-        return _.find(users, { id: args.id })
+      async resolve(parentValue, args) {
+        const { data } = await axios(`http://localhost:3000/users/${args.id}`)
+        return data
       }
     }
   }
