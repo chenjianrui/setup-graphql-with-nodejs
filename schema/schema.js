@@ -18,8 +18,10 @@ const UserType = new GraphQLObjectType({
     id: { type: GraphQLString },
     firstName: { type: GraphQLString },
     age: { type: GraphQLInt },
+    // 關聯
     company: {
       type: CompanyType,
+      // parseValue = { id: '23', firstName: 'Nick', age: 18, companyId: '1' }
       async resolve(parseValue, args){
         const { data } = await axios(`http://localhost:3000/companies/${parseValue.companyId}`)
         return data
@@ -41,6 +43,16 @@ const RootQuery = new GraphQLObjectType({
       // args 將帶入想查詢的關鍵字
       async resolve(parentValue, args) {
         const { data } = await axios(`http://localhost:3000/users/${args.id}`)
+        return data
+      }
+    },
+    company: {
+      type: CompanyType,
+      // 查詢時可以帶 id 來找特定的資料
+      // For example: company(id: "2")
+      args: { id: { type: GraphQLString } },
+      async resolve(parseValue, args){
+        const { data } = await axios(`http://localhost:3000/companies/${args.id}`)
         return data
       }
     }
