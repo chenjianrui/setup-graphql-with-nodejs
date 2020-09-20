@@ -1,19 +1,31 @@
 const graphql = require('graphql')
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema } = graphql
+const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLList } = graphql
 const axios = require('axios')
 
 const CompanyType = new GraphQLObjectType({
   name: 'Company',
-  fields: {
+  // 因為 hoisting 的關係會無法使用 users 裡的 UserType
+  // 所以將原本是 Object 的 fields 換成 Method，然後 return object
+  // 表示 Method 已定義好而整個文件完成後才會執行，算是閉包的一種
+  fields: () => ({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
-    description: { type: GraphQLString }
-  }
+    description: { type: GraphQLString },
+    users: {
+      // 從 company 連回 users 關聯時會是複數
+      // 一間公司會有許多 users，所以使用 new GraphQLList 來接
+      type: new GraphQLList(UserType),
+      async resolve(parseValue, args){
+        const { data } = await axios(`http://localhost:3000/companies/${parseValue.id}/users`)
+        return data
+      }
+    }
+  })
 })
 
 const UserType = new GraphQLObjectType({
   name: 'User',
-  fields: {
+  fields: () => ({
     // 定義型態
     id: { type: GraphQLString },
     firstName: { type: GraphQLString },
@@ -27,7 +39,7 @@ const UserType = new GraphQLObjectType({
         return data
       }
     }
-  }
+  })
 })
 
 // RootQuery 目的是允許 GraphQL 跳到特定的節點上
