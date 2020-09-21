@@ -102,6 +102,19 @@ const mutation = new GraphQLObjectType({
         const { data } = await axios.delete(`http://localhost:3000/users/${id}`)
         return data
       }
+    },
+    editUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+        firstName: { type: GraphQLString },
+        age: { type: GraphQLInt },
+        companyId: { type: GraphQLString }
+      },
+      async resolve(parseValue, args){
+        const { data } = await axios.patch(`http://localhost:3000/users/${args.id}`, args)
+        return data
+      }
     }
   }
 })
