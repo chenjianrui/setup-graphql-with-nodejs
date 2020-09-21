@@ -1,5 +1,5 @@
 const graphql = require('graphql')
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLList } = graphql
+const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLList, GraphQLNonNull } = graphql
 const axios = require('axios')
 
 const CompanyType = new GraphQLObjectType({
@@ -71,4 +71,29 @@ const RootQuery = new GraphQLObjectType({
   }
 })
 
-module.exports = new GraphQLSchema({ query: RootQuery })
+// mutation
+// 對 GraphQL 做一些操作，新增、刪除、更新之類的
+const mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addUser: {
+      // return UserType object
+      type: UserType,
+      // 指定以下的 args
+      args: {
+        // new graphQLNonNull = required
+        // 一定要帶值的 args，這裡表示在呼叫 addUser 時的 firstName & age 是必需要提供的
+        firstName: { type: new GraphQLNonNull(GraphQLString) },
+        age: { type: new GraphQLNonNull(GraphQLInt) },
+        companyId: { type: GraphQLString }
+      },
+      // 第二個參數是以上面 args 所定的 attribute
+      async resolve(parseValue, { firstName, age }){
+        const { data } = await axios.post('http://localhost:3000/users', { firstName, age })
+        return data
+      }
+    }
+  }
+})
+
+module.exports = new GraphQLSchema({ query: RootQuery, mutation })
